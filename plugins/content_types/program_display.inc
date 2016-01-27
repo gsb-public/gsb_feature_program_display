@@ -11,9 +11,9 @@ $plugin = array(
   'defaults' => array('viewmodes' => '')
 );
 
- /**
-  * The edit form the "Program/Program Instance Fields Display" Content Panes
-  */
+/**
+ * The edit form the "Program/Program Instance Fields Display" Content Panes
+ */
 function gsb_feature_program_display_edit_form($form, &$form_state) {
 
   $conf = $form_state['conf'];
@@ -24,7 +24,9 @@ function gsb_feature_program_display_edit_form($form, &$form_state) {
   $view_mode_settings = field_view_mode_settings('node', 'program');
   foreach ($view_mode_settings as $view_mode => $setting) {
     if ($setting['custom_settings']) {
-      $view_modes[$view_mode] = $view_mode;
+      if (strpos($view_mode, 'field_') === 0) {
+        $view_modes['program_' . $view_mode] = $view_mode;
+      }
     }
   }
 
@@ -32,7 +34,9 @@ function gsb_feature_program_display_edit_form($form, &$form_state) {
   $view_mode_settings = field_view_mode_settings('node', 'program_instance');
   foreach ($view_mode_settings as $view_mode => $setting) {
     if ($setting['custom_settings']) {
-      $view_modes[$view_mode] = $view_mode;
+      if (strpos($view_mode, 'field_') === 0) {
+        $view_modes['program_instance_' . $view_mode] = $view_mode;
+      }
     }
   }
 
@@ -49,9 +53,9 @@ function gsb_feature_program_display_edit_form($form, &$form_state) {
   return $form;
 }
 
- /**
-  * The submit form stores the data in $conf.
-  */
+/**
+ * The submit form stores the data in $conf.
+ */
 function gsb_feature_program_display_edit_form_submit($form, &$form_state) {
   foreach (array_keys($form_state['plugin']['defaults']) as $key) {
     if (isset($form_state['values'][$key])) {
@@ -108,18 +112,9 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
 
   // valid view modes use the following naming convention:
   //   program nodes use view modes starting with: 'program_'
-  //   program_instance nodes use view modes starting with: 'pi_'
+  //   program_instance nodes use view modes starting with: 'program_instance_'
 
-  if (strpos($view_mode, 'program_') === 0) {
-    // Output content for the program
-    // Render the program instance using the view mode
-    $entity_array = entity_view('node', $program, $view_mode);
-    $content = drupal_render($entity_array);
-    // Add in the content
-    $block->content .= $content;
-  }
-
-  if (strpos($view_mode, 'pi_') === 0) {
+  if (strpos($view_mode, 'program_instance_') === 0) {
     // Output content for the program instance
 
     // Lookup the program instances for this program
@@ -129,9 +124,13 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
     $query->fields('fp', array('entity_id', 'entity_type', 'deleted', 'field_program_target_id'));
     $query->join('node', 'nodefp', 'fp.field_program_target_id = nodefp.nid');
     $query->fields('nodefp', array('nid'));
+    $query->join('field_data_field_instance_date', 'fid', "n.nid = fid.entity_id AND fid.entity_type = 'node' AND fid.deleted = '0'");
+    $query->fields('fid', array('field_instance_date_value'));
     $query->condition('nodefp.nid', $program_nid);
     $query->condition('n.status', '1');
     $query->condition('n.type', 'program_instance');
+    $query->orderBy('fid.field_instance_date_value', 'DESC');
+    $query->range(0,1);
     $results = $query->execute();
 
     foreach ($results as $record) {
@@ -144,11 +143,19 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
         cache_set('gsb_feature_program_display_data', $program_nodes, 'cache');
       }
       // Render the program instance using the view mode
-      $entity_array = entity_view('node', $program_instance, $view_mode);
+      $entity_array = entity_view('node', $program_instance, str_replace('program_instance_','',$view_mode));
       $content = drupal_render($entity_array);
       // Add in the content
       $block->content .= $content;
     }
+  }
+  else if (strpos($view_mode, 'program_') === 0) {
+    // Output content for the program
+    // Render the program instance using the view mode
+    $entity_array = entity_view('node', $program, str_replace('program_','',$view_mode));
+    $content = drupal_render($entity_array);
+    // Add in the content
+    $block->content .= $content;
   }
 
   return $block;
