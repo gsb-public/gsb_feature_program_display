@@ -11,6 +11,9 @@ $plugin = array(
   'defaults' => array('viewmodes' => '')
 );
 
+ /**
+  * The edit form the "Program/Program Instance Fields Display" Content Panes
+  */
 function gsb_feature_program_display_edit_form($form, &$form_state) {
 
   $conf = $form_state['conf'];
