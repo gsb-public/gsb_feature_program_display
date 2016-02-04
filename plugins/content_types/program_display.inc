@@ -143,7 +143,7 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
         cache_set('gsb_feature_program_display_data', $program_nodes, 'cache');
       }
       // Render the program instance using the view mode
-      $entity_array = entity_view('node', $program_instance, str_replace('program_instance_','',$view_mode));
+      $entity_array = entity_view('node', $program_instance, preg_replace('/program_instance_/','',$view_mode, 1));
       $content = drupal_render($entity_array);
       // Add in the content
       $block->content .= $content;
@@ -152,7 +152,7 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
   else if (strpos($view_mode, 'program_') === 0) {
     // Output content for the program
     // Render the program instance using the view mode
-    $entity_array = entity_view('node', $program, str_replace('program_','',$view_mode));
+    $entity_array = entity_view('node', $program, preg_replace('/program_/','',$view_mode, 1));
     $content = drupal_render($entity_array);
     // Add in the content
     $block->content .= $content;
