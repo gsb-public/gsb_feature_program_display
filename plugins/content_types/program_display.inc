@@ -4,7 +4,7 @@ $plugin = array(
   'single' => TRUE,
   'title' => t('Program/Program Instance Fields Display'),
   'description' => t('Shows a program and program instance fields with basic configuration options.'),
-  'category' => t('Program/Program Instance'),
+  'category' => t('Custom Content & Features'),
   'edit form' => 'gsb_feature_program_display_edit_form',
   'render callback' => 'gsb_feature_program_display_render',
   'admin info' => 'gsb_feature_program_display_admin_info',
@@ -22,10 +22,13 @@ function gsb_feature_program_display_edit_form($form, &$form_state) {
 
   // Get the list of program view modes
   $view_mode_settings = field_view_mode_settings('node', 'program');
+
+  $entity_info = entity_get_info('node');
+
   foreach ($view_mode_settings as $view_mode => $setting) {
     if ($setting['custom_settings']) {
       if (strpos($view_mode, 'field_') === 0) {
-        $view_modes['program_' . $view_mode] = $view_mode;
+        $view_modes['program_' . $view_mode] = $entity_info['view modes'][$view_mode]['label'];
       }
     }
   }
@@ -35,7 +38,7 @@ function gsb_feature_program_display_edit_form($form, &$form_state) {
   foreach ($view_mode_settings as $view_mode => $setting) {
     if ($setting['custom_settings']) {
       if (strpos($view_mode, 'field_') === 0) {
-        $view_modes['program_instance_' . $view_mode] = $view_mode;
+        $view_modes['program_instance_' . $view_mode] = $entity_info['view modes'][$view_mode]['label'];
       }
     }
   }
