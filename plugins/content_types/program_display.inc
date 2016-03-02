@@ -89,11 +89,13 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
 
   // Get the program nid for the PPP
   $program_nid = $ppp->field_program['und'][0]['target_id'];
+  dpm($program_nid);
 
   // See if we have any of the program and program instance nodes already
   // loaded in our cache.
   if (!isset($program_nodes)) {
     if ($cache = cache_get('gsb_feature_program_display_data')) {
+      dpm($cache);
       $program_nodes = $cache->data;
     }
     else {
@@ -106,13 +108,16 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
 
   if (isset($program_nodes[$program_nid])) {
     $program = $program_nodes[$program_nid];
+    dpm($program);
     $query = db_select('node_revision', 'nr');
     $query->fields('nr', array('nid', 'status', 'timestamp'));
     $query->condition('nr.nid', $program_nid);
     $query->condition('nr.status', '1');
     $results = $query->execute();
     foreach ($results as $record) {
+      dpm($record);
       if ($program[$program_nid]->revision_timestamp != $record->timestamp) {
+        dpm('reloading cache');
         $program = entity_load('node', array($program_nid));
         $program_nodes[$program_nid] = $program;
         cache_set('gsb_feature_program_display_data', $program_nodes, 'cache');
