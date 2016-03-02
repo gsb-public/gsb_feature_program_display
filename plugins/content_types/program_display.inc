@@ -106,6 +106,18 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
 
   if (isset($program_nodes[$program_nid])) {
     $program = $program_nodes[$program_nid];
+    $query = db_select('node_revision', 'nr');
+    $query->fields('nr', array('nid', 'status', 'timestamp'));
+    $query->condition('nr.nid', $program_nid);
+    $query->condition('nr.status', '1');
+    $results = $query->execute();
+    foreach ($results as $record) {
+      if ($program[$program_nid]->revision_timestamp != $record->timestamp) {
+        $program = entity_load('node', array($program_nid));
+        $program_nodes[$program_nid] = $program;
+        cache_set('gsb_feature_program_display_data', $program_nodes, 'cache');
+      }
+    }
   }
   else {
     $program = entity_load('node', array($program_nid));
