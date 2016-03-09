@@ -2,7 +2,7 @@
 
 $plugin = array(
   'single' => TRUE,
-  'title' => t('Program/Program Instance Fields Display'),
+  'title' => t('Programs: Content Panes'),
   'description' => t('Shows a program and program instance fields with basic configuration options.'),
   'category' => t('Custom Content & Features'),
   'edit form' => 'gsb_feature_program_display_edit_form',
@@ -12,7 +12,7 @@ $plugin = array(
 );
 
 /**
- * The edit form the "Program/Program Instance Fields Display" Content Panes
+ * The edit form the "Programs: Content Panes" Content Panes
  */
 function gsb_feature_program_display_edit_form($form, &$form_state) {
 
@@ -167,6 +167,7 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
   else if (strpos($view_mode, 'program_') === 0) {
     // Output content for the program
     // Render the program instance using the view mode
+    //$view_mode = 'default';
     $entity_array = entity_view('node', $program, preg_replace('/program_/','',$view_mode, 1));
     $content = drupal_render($entity_array);
     // Add in the content
