@@ -105,19 +105,7 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
   }
 
   if (isset($program_nodes[$program_nid])) {
-    $program = $program_nodes[$program_nid];
-    $query = db_select('node_revision', 'nr');
-    $query->fields('nr', array('nid', 'status', 'timestamp'));
-    $query->condition('nr.nid', $program_nid);
-    $query->condition('nr.status', '1');
-    $results = $query->execute();
-    foreach ($results as $record) {
-      if ($program[$program_nid]->revision_timestamp != $record->timestamp) {
-        $program = entity_load('node', array($program_nid));
-        $program_nodes[$program_nid] = $program;
-        cache_set('gsb_feature_program_display_data', $program_nodes, 'cache');
-      }
-    }
+    $program = _gsb_feature_program_get_cached_node($program_nodes, $program_nid);
   }
   else {
     $program = entity_load('node', array($program_nid));
@@ -150,7 +138,7 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
 
     foreach ($results as $record) {
       if (isset($program_nodes[$record->nid])) {
-        $program_instance = $program_nodes[$record->nid];
+        $program_instance = _gsb_feature_program_get_cached_node($program_nodes, $record->nid);
       }
       else {
         $program_instance = entity_load('node', array($record->nid));
@@ -176,3 +164,21 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
 
   return $block;
 }
+
+function _gsb_feature_program_get_cached_node(&$program_nodes, $nid) {
+  $node = $program_nodes[$nid];
+  $query = db_select('node_revision', 'nr');
+  $query->fields('nr', array('nid', 'status', 'timestamp'));
+  $query->condition('nr.nid', $nid);
+  $query->condition('nr.status', '1');
+  $results = $query->execute();
+  foreach ($results as $record) {
+    if ($node[$nid]->revision_timestamp != $record->timestamp) {
+      $node = entity_load('node', array($nid));
+      $program_nodes[$nid] = $node;
+      cache_set('gsb_feature_program_display_data', $program_nodes, 'cache');
+    }
+  }
+  return $node;
+}
+
