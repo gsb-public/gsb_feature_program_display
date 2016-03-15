@@ -13,3 +13,29 @@ function gsb_feature_program_display_ctools_plugin_directory($owner, $plugin_typ
   }
 }
 
+/**
+ * Implements hook_ds_pre_render_alter()
+ *
+ * Determine if the field_program_faculty sections have any items.
+ * If they are empty, then we will remove each section so that they won't be rendered.
+ */
+function gsb_feature_program_display_ds_pre_render_alter(&$layout_render_array, $context, &$vars) {
+  // if the context is an program_instance, and the view mode is field_program_faculty
+  if (!empty($context['bundle']) && $context['bundle'] == 'program_instance' && $context['view_mode'] == 'field_program_faculty') {
+    $faculty_sections = array(
+      'field_faculty_1',
+      'field_faculty_2',
+      'field_guest_speakers_advisors_fc',
+      'field_faculty_directors',
+    );
+    foreach($faculty_sections as $section_name) {
+      // check if the section is empty, and remove if it is
+      $item_id = $layout_render_array['ds_content'][0][$section_name]['#items'][0]['value'];
+      if (empty($layout_render_array['ds_content'][0][$section_name][0]['entity']['field_collection_item'][$item_id]['#entity']->field_person_fac_single_ref)) {
+        if (empty($layout_render_array['ds_content'][0][$section_name][0]['entity']['field_collection_item'][$item_id]['#entity']->field_other_name)) {
+          unset($layout_render_array['ds_content'][0][$section_name]);
+        }
+      }
+    }
+  }
+}
