@@ -8,6 +8,7 @@ $plugin = array(
   'edit form' => 'gsb_feature_program_display_edit_form',
   'render callback' => 'gsb_feature_program_display_render',
   'admin info' => 'gsb_feature_program_display_admin_info',
+  'admin title' => 'gsb_feature_program_display_admin_title',
   'defaults' => array('viewmodes' => '')
 );
 
@@ -185,3 +186,32 @@ function _gsb_feature_program_get_cached_node(&$program_nodes, $nid) {
   return $node;
 }
 
+/**
+ * If the pane is a program or program_instance viewmode-based pane,
+ * then change the title for the pane to be the viewmode's label value.
+ */
+function gsb_feature_program_display_admin_title($subtype, $conf, $context = NULL) {
+  if (!empty($conf['viewmodes'])) {
+    $needle = 'program_instance_field_';
+    $pos = strpos($conf['viewmodes'], $needle);
+    if ($pos === 0) {
+      $needle = 'program_instance_';
+      $entity_info = entity_get_info('node');
+      $viewmode = substr($conf['viewmodes'], strlen($needle));
+      $output = t('pi: ' . $entity_info['view modes'][$viewmode]['label']);
+      return $output;
+    }
+    $needle = 'program_field_';
+    $pos = strpos($conf['viewmodes'], $needle);
+    if ($pos === 0) {
+      $needle = 'program_';
+      $entity_info = entity_get_info('node');
+      $viewmode = substr($conf['viewmodes'], strlen($needle));
+      $output = t('p: ' . $entity_info['view modes'][$viewmode]['label']);
+      return $output;
+    }
+  }
+  // otherwise default by returning the plugin's title
+  $plugin = ctools_get_content_type($subtype);
+  return $plugin['title'];
+}
