@@ -16,12 +16,27 @@ function gsb_feature_program_display_ctools_plugin_directory($owner, $plugin_typ
 /**
  * Implements hook_ds_pre_render_alter()
  *
- * Determine if the field_program_faculty sections have any items.
+ * When displaying any faculty_directors, remove the field_image_single_public for all items that are faculty references
+ *
+ * Also... determine if the field_program_faculty sections have any items.
  * If they are empty, then we will remove each section so that they won't be rendered.
  */
 function gsb_feature_program_display_ds_pre_render_alter(&$layout_render_array, $context, &$vars) {
   // if the context is an program_instance, and the view mode is field_program_faculty
   if (!empty($context['bundle']) && $context['bundle'] == 'program_instance' && $context['view_mode'] == 'field_program_faculty') {
+    // When displaying any faculty_directors, remove the field_image_single_public for all items that are faculty references
+    $section_name = 'field_faculty_directors';
+    $director_entity_ids = array();
+    foreach($layout_render_array['ds_content'][0][$section_name]['#items'] as $item) {
+      $director_entity_ids[] = $item['value'];
+    }
+    foreach($director_entity_ids as $index => $entity_id) {
+      if (!empty($layout_render_array['ds_content'][0]['field_faculty_directors'][$index]['entity']['field_collection_item'][$entity_id]['field_person_fac_single_ref'])) {
+        unset($layout_render_array['ds_content'][0]['field_faculty_directors'][$index]['entity']['field_collection_item'][$entity_id]['field_image_single_public']);
+      }
+    }
+    // Determine if the field_program_faculty sections have any items.
+    // If they are empty, then we will remove each section so that they won't be rendered.
     $faculty_sections = array(
       'field_faculty_1',
       'field_faculty_2',
