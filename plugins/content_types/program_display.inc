@@ -138,7 +138,7 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
     $query->condition('n.status', '1');
     $query->condition('n.type', 'program_instance');
     $query->condition('dof.field_display_on_finder_value', '1');
-    $query->condition('ao.field_is_application_open_value', '1');
+    //$query->condition('ao.field_is_application_open_value', '1');
     $query->orderBy('fid.field_instance_date_value', 'ASC');
     $query->range(0,1);
     $results = $query->execute();
