@@ -128,8 +128,10 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
     $query->fields('fp', array('entity_id', 'entity_type', 'deleted', 'field_program_target_id'));
     $query->join('node', 'nodefp', 'fp.field_program_target_id = nodefp.nid');
     $query->fields('nodefp', array('nid'));
-    $query->join('field_data_field_instance_date', 'fid', "n.nid = fid.entity_id AND fid.entity_type = 'node' AND fid.deleted = '0'");
+    $query->leftJoin('field_data_field_instance_date', 'fid', "n.nid = fid.entity_id AND fid.entity_type = 'node' AND fid.deleted = '0'");
     $query->fields('fid', array('field_instance_date_value'));
+    $query->leftJoin('field_data_field_instance_text', 'fit', "n.nid = fit.entity_id AND fit.entity_type = 'node' AND fit.deleted = '0'");
+    $query->fields('fit', array('field_instance_text_value'));
     $query->join('field_data_field_display_on_finder', 'dof', "n.nid = dof.entity_id AND dof.entity_type = 'node' AND dof.deleted = '0'");
     $query->fields('dof', array('field_display_on_finder_value'));
     $query->join('field_data_field_is_application_open', 'ao', "n.nid = ao.entity_id AND ao.entity_type = 'node' AND ao.deleted = '0'");
