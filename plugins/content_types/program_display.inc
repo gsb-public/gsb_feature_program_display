@@ -134,8 +134,8 @@ function gsb_feature_program_display_render($subtype, $conf, $panel_args, $conte
     $query->fields('fit', array('field_instance_text_value'));
     $query->join('field_data_field_display_on_finder', 'dof', "n.nid = dof.entity_id AND dof.entity_type = 'node' AND dof.deleted = '0'");
     $query->fields('dof', array('field_display_on_finder_value'));
-    $query->join('field_data_field_is_application_open', 'ao', "n.nid = ao.entity_id AND ao.entity_type = 'node' AND ao.deleted = '0'");
-    $query->fields('ao', array('field_is_application_open_value'));
+    //$query->join('field_data_field_is_application_open', 'ao', "n.nid = ao.entity_id AND ao.entity_type = 'node' AND ao.deleted = '0'");
+    //$query->fields('ao', array('field_is_application_open_value'));
     $query->condition('nodefp.nid', $program_nid);
     $query->condition('n.status', '1');
     $query->condition('n.type', 'program_instance');
